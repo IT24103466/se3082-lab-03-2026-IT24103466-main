@@ -1,0 +1,8 @@
+Cores: 8
+Sample output: Threads = 1, S = -3.333333e+20, Time = 0.019879 s
+Threads  Median_s     Speedup 
+1        0.017505     1.00    
+2        0.008523     2.05    
+4        0.008115     2.16    
+8        0.009321     1.88    
+16       0.005693     3.07    

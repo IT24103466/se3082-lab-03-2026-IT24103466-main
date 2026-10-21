@@ -1,0 +1,34 @@
+Exercise 2 - Parallel Pi using OpenMP
+
+Parallelisation: #pragma omp parallel for reduction(+:sum)
+Compile: gcc -O2 -fopenmp pi_parallel.c -o pi_parallel
+N = 100,000,000 steps. Time = median of 5 runs. Machine: 8 logical cores (nproc = 8).
+
+Q1/Q3. Serial vs parallel execution time and speedup (speedup = T1 / Tn)
+
+Threads   Time (s)    Speedup
+1         0.112002    1.00
+2         0.057906    1.93
+4         0.051606    2.17
+8         0.049120    2.28
+16        0.036124    3.10
+
+The parallel program is faster than the serial one. With 2 threads the speedup is
+close to ideal (1.93x). It then grows only slowly because the loop is short (about
+0.1 s), so thread start-up and memory overhead take a large share of the time, and
+the 8 logical cores are not 8 independent physical cores. The result at 16 threads
+(3.10x) is higher than at 8 even though there are only 8 logical cores; this is
+most likely run-to-run variation and scheduling effects on such short runs.
+
+Q4. Number of cores: 8 logical cores (nproc = 8).
+
+Q5/Q6. Speedup when the number of threads is changed: see the table above.
+The speedup increases as threads are added up to the core count and flattens
+beyond that.
+
+Correctness: the parallel result is correct. Pi = 3.141592653590426 for 1 thread,
+the same as the serial result (Exercise 1). Results with more threads differ only
+in the last few digits because floating-point addition is done in a different order.
+The 'reduction(+:sum)' clause is required: without it all threads update the shared
+variable 'sum' at the same time (a race condition), and the answer would be wrong.
+The variable x is declared inside the loop so each thread has its own copy.

@@ -1,0 +1,37 @@
+Exercise 4 - Parallel Monte Carlo estimation of Pi (10,000,000 samples)
+
+Method: random points (x, y) in the unit square are generated; the fraction that
+falls inside the quarter circle (x*x + y*y <= 1) is multiplied by 4 to estimate Pi.
+
+Parallelisation: #pragma omp parallel reduction(+:inside) with #pragma omp for
+Compile: gcc -O2 -fopenmp pi_montecarlo.c -o pi_montecarlo
+N = 10,000,000. Time = median of 5 runs. Machine: 8 logical cores (nproc = 8).
+Timing: omp_get_wtime() around the parallel region.
+
+Implementation notes:
+- rand() is not thread-safe and all threads would contend for its shared state, so
+  each thread uses rand_r() with its own seed (12345 + thread number).
+- The hit counter is combined with reduction(+:inside), so there is no race condition.
+
+Results
+
+Threads   Time (s)    Speedup
+1         0.076775    1.00
+2         0.052911    1.45
+4         0.027895    2.75
+8         0.037371    2.05
+16        0.022567    3.40
+
+Estimated value (1 thread): Pi ~ 3.141386
+
+The estimate of Pi is about 3.14, correct to roughly 3 decimal places. The error of
+a Monte Carlo estimate falls only with the square root of the number of samples, so
+it is much less accurate than the numerical integration in Exercise 2. The estimate
+differs slightly between runs with different thread counts because each thread uses
+its own random sequence; this is expected and does not mean the result is wrong.
+
+The parallel version is faster than the serial one. The speedup is 2.75x with 4
+threads. It does not rise steadily with more threads: the 8 thread time is slower
+than the 4 thread time. The run time is under 0.1 s, so thread overhead and
+run-to-run variation have a large effect, and the 8 logical cores are not 8
+independent physical cores.

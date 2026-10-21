@@ -1,0 +1,33 @@
+Exercise 3 - Parallel summation S = sum_{i=1}^{N} [ i - i^2 + sqrt(2*(i+1)) ],  N = 10,000,000
+
+Parallelisation: #pragma omp parallel for reduction(+:S)
+Compile: gcc -O2 -fopenmp sum_parallel.c -o sum_parallel -lm
+Time = median of 5 runs. Machine: 8 logical cores (nproc = 8).
+
+Implementation notes:
+- The loop variable and the terms are computed as double. With int arithmetic,
+  i*i overflows for i > 46,340 and gives a wrong result.
+- reduction(+:S) gives each thread its own partial sum and combines them at the end,
+  so there is no race condition on S.
+
+Q1. Serial vs parallel execution time and speedup (speedup = T1 / Tn)
+
+Threads   Time (s)    Speedup
+1         0.017505    1.00
+2         0.008523    2.05
+4         0.008115    2.16
+8         0.009321    1.88
+16        0.005693    3.07
+
+Result: S = -3.333333e+20 for every thread count, so the parallel result is correct.
+
+The parallel program is faster than the serial one. With 2 threads the speedup is
+about 2x. Beyond that the gain is small and irregular. The whole computation takes
+only about 0.02 s, so thread creation and scheduling overhead are a large part of
+the measured time, and the 8 logical cores are not 8 independent physical cores.
+The speedup is therefore not proportional to the number of threads, and the
+differences between the 4, 8 and 16 thread results are mostly run-to-run variation.
+
+Q2. Speedup for different numbers of threads: see the table above.
+Speedup rises to about 2x with 2 threads and then flattens, because the amount of
+work is small relative to the parallel overhead.

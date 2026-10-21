@@ -1,0 +1,8 @@
+Cores: 8
+Sample output: Threads = 1, Pi ~ 3.141386, Time = 0.082675 s
+Threads  Median_s     Speedup 
+1        0.076775     1.00    
+2        0.052911     1.45    
+4        0.027895     2.75    
+8        0.037371     2.05    
+16       0.022567     3.40    
